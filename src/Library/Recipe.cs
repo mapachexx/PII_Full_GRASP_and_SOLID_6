@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace Full_GRASP_And_SOLID
 {
@@ -17,6 +18,10 @@ namespace Full_GRASP_And_SOLID
         public Product FinalProduct { get; set; }
 
         // Agregado por Creator
+
+        public bool Cooked {get; private set;} = false;
+
+
         public void AddStep(Product input, double quantity, Equipment equipment, int time)
         {
             Step step = new Step(input, quantity, equipment, time);
@@ -62,5 +67,65 @@ namespace Full_GRASP_And_SOLID
 
             return result;
         }
+
+
+        public int GetCookTime()
+        {
+            int total_time = 0;
+            foreach (Step step in steps)
+            {
+                total_time += step.Time;
+            }
+            return total_time;
+        }
+
+         public void Cook()
+         {
+            //tengo que hacer un timer que cuente
+            //tengo que llamar a RecipeAdapter
+            int cook_time = GetCookTime();
+            CountdownTimer timer1 = new CountdownTimer();
+            RecipeAdapter recipeadapter1 = new RecipeAdapter(this);
+            timer1.Register(cook_time, recipeadapter1);
+         }
+    
+    
+        public class RecipeAdapter : TimerClient // Corregido el nombre de la clase
+        {
+            private Recipe recipe; // Corregido el nombre de la variable
+
+            public RecipeAdapter(Recipe recipe)
+            {
+                this.recipe = recipe;
+            }
+
+            public void TimeOut()
+            {
+                this.recipe.Cooked = true;
+            }
+        }
     }
 }
+
+/*
+Register(tiempo, client)
+
+client -> timeout
+tiempo -> tiempo receta
+
+como no podemos modificar Recipe podemos crear otra clase.
+Esa clase RecipeAdapter : TimerClient
+
+    public RecipeaAdapter(Recipe recipe)
+    {
+        this.recipe = recipe;
+    }
+    public void TimeOut()
+    {
+        this.recipe.TimeOut = true;
+    }
+
+podemos meter esta clase adentro de Recipe.
+
+
+*/
